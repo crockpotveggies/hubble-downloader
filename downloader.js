@@ -5,7 +5,7 @@ var args = require('args')
 
 // command line args
 args
-	.option('size', 'The number of concurrent file downloads', 4)
+	.option('size', 'The number of concurrent file downloads', 48)
 	.option('from', 'Cursor to a specific image in results', 0)
 	.option('output', 'Location to put images', './data')
 
@@ -61,7 +61,10 @@ var downloadImageToUrl = (url, filename, callback) => {
 var processAndFetch = function (body) {
 	// parse and iterate
 	let response = JSON.parse(body)
-	response.hits.hits.forEach(function(hit) {
+	let hits = response.hits.hits
+
+	for(var i = 0; i < hits.length; i++) {
+		let hit = hits[i]
 		var fileExt = hit._source['master-image'].uri.split(".")
 		fileExt = fileExt[fileExt.length-1]
 
@@ -83,7 +86,7 @@ var processAndFetch = function (body) {
 		} else {
 			console.log('Skipped image '+outputFile+': received bad status code')
 		}
-	})
+	}
 
   cursor += flags.size
   download()
