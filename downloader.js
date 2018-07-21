@@ -70,14 +70,19 @@ var processAndFetch = function (body) {
 		let file = syncRequest('GET', apiStatic(hit._source['master-image'].uri))
 		let outputFile = outputImgDir+'/'+hit._source['master-image'].id+'.'+fileExt
 
-		fs.writeFileSync(outputFile, file.getBody(), 'binary', function(err) {
-			throw new Error('Failed to write file to '+outputFile)
-		})
+		if(file.statusCode < 300) {
+			fs.writeFileSync(outputFile, file.getBody(), 'binary', function(err) {
+				throw new Error('Failed to write file to '+outputFile)
+			})
 
-		let metaData = hit._source['master-image'].id+'|'+hit._source.uri+'|'+hit._source.title+'|'+hit._source['master-image'].height+'|'+hit._source['master-image'].width
-		fs.appendFile(flags.output+'/images.csv', metaData, function (err) {
-		  if (err) throw err;
-		});
+			let metaData = hit._source['master-image'].id+'|'+hit._source.uri+'|'+hit._source.title+'|'+hit._source['master-image'].height+'|'+hit._source['master-image'].width
+			fs.appendFile(flags.output+'/images.csv', metaData, function (err) {
+			  if (err) throw err;
+			});
+
+		} else {
+			console.log('Skipped image '+outputFile+': received bad status code')
+		}
 	})
 
   cursor += flags.size
