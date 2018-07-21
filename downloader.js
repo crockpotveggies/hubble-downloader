@@ -5,7 +5,7 @@ var args = require('args')
 
 // command line args
 args
-	.option('size', 'The number of concurrent file downloads', 48)
+	.option('size', 'The number of concurrent file downloads', 96)
 	.option('from', 'Cursor to a specific image in results', 0)
 	.option('output', 'Location to put images', './data')
 
@@ -65,21 +65,21 @@ var processAndFetch = function (body) {
 
 	for(var i = 0; i < hits.length; i++) {
 		let hit = hits[i]
-		var fileExt = hit._source['master-image'].uri.split(".")
-		fileExt = fileExt[fileExt.length-1]
+		els = hit._source['master-image'].uri.split("/")
+		let fileName = els[els.length-1]
 
 		// write image file
 		console.log(apiStatic(hit._source['master-image'].uri))
 		let file = syncRequest('GET', apiStatic(hit._source['master-image'].uri))
-		let outputFile = outputImgDir+'/'+hit._source['master-image'].id+'.'+fileExt
+		let outputFile = outputImgDir+'/'+fileName
 
 		if(file.statusCode < 300) {
 			fs.writeFileSync(outputFile, file.getBody(), 'binary', function(err) {
 				throw new Error('Failed to write file to '+outputFile)
 			})
 
-			let metaData = hit._source['master-image'].id+'|'+hit._source.uri+'|'+hit._source.title+'|'+hit._source['master-image'].height+'|'+hit._source['master-image'].width
-			fs.appendFile(flags.output+'/images.csv', metaData, function (err) {
+			let metaData = hit._source['master-image'].uri+'|'+hit._source.title+'|'+hit._source['master-image'].height+'|'+hit._source['master-image'].width+'\n'
+			fs.appendFileSync(flags.output+'/images.csv', metaData, function (err) {
 			  if (err) throw err;
 			});
 
@@ -89,6 +89,7 @@ var processAndFetch = function (body) {
 	}
 
   cursor += flags.size
+  console.log('Cursor is ', cursor)
   download()
 }
 
