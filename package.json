@@ -1,0 +1,11 @@
+{
+  "author": "crockpotveggies",
+  "name": "hubble-downloader",
+  "version": "0.0.1",
+  "dependencies": {
+    "args": "^5.0.0",
+    "request": "^2.87.0",
+    "sync-request": "^6.0.0",
+    "csv-write-stream": "^2.0.0"
+  }
+}
